@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import com.example.countercompose.ui.theme.CounterComposeTheme
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.OutlinedTextField
 
 @Composable
 fun CounterApp(
@@ -27,12 +28,18 @@ fun CounterApp(
     viewModel: CounterViewModel = viewModel()
 ) {
     val counter by viewModel.counter
+    val nameInput by viewModel.nameInput
+    val savedName by viewModel.savedName
 
     CounterScreen(
         counter = counter,
+        nameInput = nameInput,
+        savedName = savedName,
         onIncrement = { viewModel.increment() },
         onDecrement = { viewModel.decrement() },
         onReset = { viewModel.reset() },
+        onNameChange = { viewModel.updateNameInput(it) },
+        onSaveName = { viewModel.saveName() },
         modifier = modifier
     )
 }
@@ -40,9 +47,13 @@ fun CounterApp(
 @Composable
 fun CounterScreen(
     counter: Int,
+    nameInput: String,
+    savedName: String,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onReset: () -> Unit,
+    onNameChange: (String) -> Unit,
+    onSaveName: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -66,6 +77,16 @@ fun CounterScreen(
                 .weight(1f)
         )
 
+        if (savedName.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Halo, $savedName!",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         CounterButtons(
@@ -73,6 +94,25 @@ fun CounterScreen(
             onIncrement = onIncrement,
             onReset = onReset
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = nameInput,
+            onValueChange = onNameChange,
+            label = { Text("Nama") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Tombol Simpan di bawah form input
+        Button(
+            onClick = onSaveName,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Simpan")
+        }
     }
 }
 
@@ -85,9 +125,13 @@ fun CounterScreenPreview() {
     CounterComposeTheme {
         CounterScreen(
             counter = 7,
+            nameInput = "",
+            savedName = "",
             onIncrement = {},
             onDecrement = {},
-            onReset = {}
+            onReset = {},
+            onNameChange = {},
+            onSaveName = {}
         )
     }
 }
